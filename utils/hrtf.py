@@ -83,14 +83,14 @@ class CipicHRTF(HRTF):
     def _loadImpulsesFromFileSofa(self):
 
         # Load CIPIC HRTF data
-        impulses = np.array(h5py.File(self.filename,'r')["Data.IR"].value.tolist())
+        impulses = np.array(h5py.File(self.filename,'r')["Data.IR"][()].tolist())
 
         return impulses
     
     def _loadPositionsFromFileSofa(self):
 
         # Load CIPIC HRTF data
-        positions = np.array(h5py.File(self.filename,'r')["SourcePosition"].value.tolist())
+        positions = np.array(h5py.File(self.filename,'r')["SourcePosition"][()].tolist())
         azimuths = positions[:,0]
         elevations = positions[:,1]
         distance = positions[:,2]
