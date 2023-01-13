@@ -4,6 +4,7 @@ import logging
 import numpy as np
 import h5py
 import scipy.io
+import sofar
 
 class HRTF(object):
 
@@ -189,18 +190,12 @@ def get_hrtf_sofa(hrtf_folder, num):
     return CipicHRTF(hrtf_folder + '/subject_' + str(num_str) + '.sofa', 44100.0)
 
 def create_cipic_hrtf(template_filename, filename, impulses, elevations, azimuths):
-    try:
-        reference = h5py.File(template_filename,'r')
-        hrtf = h5py.File(filename,'w')
         
-        for key in list(reference.keys()):
-            reference.copy(key, hrtf)
 
-        elevations, azimuths = interauralPolarToVerticalPolarCoordinates(elevations, azimuths)
-        hrtf["Data.IR"][:] = impulses[:]
-        hrtf["SourcePosition"][:,0] = azimuths
-        hrtf["SourcePosition"][:,1] = elevations
-        hrtf.close()
 
-    except FileNotFoundError as err:
-        print(err)
+
+    sofa = sofar.read_sofa(template_filename)
+    sofa.Data_IR = impulses
+    sofa.SourcePosition[:,0] = azimuths
+    sofa.SourcePosition[:,1] = elevations
+    sofar.write_sofa(filename, sofa, compression = 9)
