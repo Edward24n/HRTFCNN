@@ -1,7 +1,9 @@
 # HRTFCNN
 Convolutional Neural Network to Estimate HRTF for Spatial Audio
 
-COLAB NOTEBOOK: https://colab.research.google.com/drive/1YjlgEzn3wjde6VCa5mpQx4DTGrymTJgo
+~~COLAB NOTEBOOK: https://colab.research.google.com/drive/1YjlgEzn3wjde6VCa5mpQx4DTGrymTJgo~~
+
+ANDY'S COLAB NOTEBOOK: https://colab.research.google.com/drive/1WAdzGP1ayC6py6rcKGBA9z-7j-A-k0JV
 
 ## Introduction
 With the recent popularity of virtual reality, the concept of spatial audio has generated a lot more buzz in recent years. However, the problem for truly realistic spatial audio is an incredibly complex and difficult process. One of the primary methods for simulating realistic spatial audio is using HRTFs, or Head Related Transfer Functions. These functions essentially map the relationship between a sound source and how that sound propogates throughout a person's ear. Thus, HRTFs are incredibly individualized and without accurate HRTFs, spatial audio fails pretty poorly. Current state of the art methods primarily rely on measuring HRTFs using expensive and complex microphone and speaker arrays in anechoic chambers, but with the rapid advancement of machine learning in the past decade, there's likely a more efficient and cheaper alternative. 
@@ -23,6 +25,24 @@ However, as HRTFs have gained popularity, people have felt the need to create a 
 In these utilities you can find classes for HRTFs in which you can store elevations, azimuths, and impulses. There's is still more room for expansion to all kinds of SOFA files, but current the classes are only compatible with the CIPIC SOFA format and simple saving and storage of certain attributes. Check the `utils` folder to see the files.
 
 https://www.sofaconventions.org/mediawiki/index.php/SOFA_(Spatially_Oriented_Format_for_Acoustics)
+
+### Other SOFA utilities
+- #### JSAmbisonics
+    - https://github.com/polarch/JSAmbisonics
+    - can convert SOFA files to binaural decoding filters (foa/hoa hrir .wav files).
+        - https://github.com/polarch/JSAmbisonics#integration-with-sofa-hrtfs-
+
+- #### libmysofa can convert .sofa to .json
+    - https://github.com/hoene/libmysofa
+    - builds with CMake on my M1 mac with no issues.
+    - does not convert .json back to .sofa
+
+- #### sofar: Python library for .sofa file read/write
+    - https://sofar.readthedocs.io/en/latest/
+    - `pip3 install sofar`
+    - Easy to use.
+    - I used it in this repo (see utils/hrtf.py) to fix the original issues causing the final output `predict.sofa` file to be invalid.
+
 
 ## Measurement Estimation
 A big part of this project is using the combination of anthropomorphic measurements and ear images to estimate HRTFs. But unfortunately, taking anthropomorphic measurements is incredibly cumbersome since you need to use a tape measure and measure about 37 various things (e.g. angles of ears). Thus I've also built a tool using an interactive step by step Jupyter notebook to estimate these measuremnts with simple pictures. In order to do so, we take 2 pictures, front and side while holding an 8.5x11in page for comparison.
@@ -46,14 +66,21 @@ Results: RMLSE (Room mean log square error) for our model= -24.285 RMLSE average
 The paper:
 https://www.mdpi.com/2076-3417/8/11/2180/pdf
 
-## Instructions
-Feel free to clone the repo and remember to run `pip install -r requirements.txt` and install jupyter to run the notebooks. If you're trying to train you'll likely want to train online so the link below on Google Colab lets you train on a free TPU for 12 hours at a time.
+## Andy's instructions
+This repo is hard-coded to use my personal input images and measurements. You'll want to replace my data with your own before running it. Use the `Anthropomorphic.ipynb` notebook to generate the 17 measurements that get input into the `FinalHRTFCNN.ipynb` notebook in the **Predict** step.
+
+To run it, save the AnthropomorphicFeatures and FinalHRTFCNN Jupyter notebooks to Google Drive, then use the online version of Google Drive to open the notebooks in Colab.
+
+On Colab, select Runtime -> Run all and everything should work. The end result is a dialog box that pops up to download the resulting `predict.sofa` file.
+
+~~## Instructions
+Feel free to clone the repo and remember to run `pip install -r requirements.txt` and install jupyter to run the notebooks. If you're trying to train you'll likely want to train online so the link below on Google Colab lets you train on a free TPU for 12 hours at a time.~~
 
 Use the model and utils to generate a sofa file and feel free to load it in something like Max MSP. IRCAM SPAT is an incredibly helpful tool. The spat5.binaraul object lets you load in a sofa file and move audio around in various azimuths and elevations.
 
 ## Plans to improve
-Since training takes 5 hours each time, there hasn't been much time to finetune the model for training. Google Colab tends to disconnect often and cut off training so in order to improve the model we could train on AWS or GCP instances. Also, in order to deal with the sparse data problem, we could use common image augmentation techniques and ZCA to preprocess the images and create more data. These techniques include random cropping in the images, rotating, brightening, etc. As a result we are only focusing on the contours of the ear, not necessarily the orientation or darkness of the image. As explained before, other future work will focus on expanding the utilties for SOFA support in python since there seems to be a lot of machine learning potential for HRTFs in the future. Finally, we can improve the anthropomorphic measurements by automatically detecting the page and automatically detecting the size of each measurement instead of manual points. This could speed up the process significantly since a lot of time is spent generating the HRTFs and training the model.
+~~Since training takes 5 hours each time, there hasn't been much time to finetune the model for training. Google Colab tends to disconnect often and cut off training so in order to improve the model we could train on AWS or GCP instances. Also, in order to deal with the sparse data problem, we could use common image augmentation techniques and ZCA to preprocess the images and create more data. These techniques include random cropping in the images, rotating, brightening, etc. As a result we are only focusing on the contours of the ear, not necessarily the orientation or darkness of the image. As explained before, other future work will focus on expanding the utilties for SOFA support in python since there seems to be a lot of machine learning potential for HRTFs in the future. Finally, we can improve the anthropomorphic measurements by automatically detecting the page and automatically detecting the size of each measurement instead of manual points. This could speed up the process significantly since a lot of time is spent generating the HRTFs and training the model.~~
 
-In order to walk through the entire training process follow this link
-https://colab.research.google.com/drive/1YjlgEzn3wjde6VCa5mpQx4DTGrymTJgo
+I fixed a bunch of issues with the original notebook I forked this one from, and it only takes about 10 minutes to run on Google Colab, now.
 
+There is still a lot of room for improvement in the training data, though.
